@@ -11,7 +11,7 @@ from pathlib import Path
 import jwt
 import requests
 
-CONFIG_PATH = Path(__file__).parent.parent / "template" / "github_bot.json"
+CONFIG_PATH = Path(__file__).parent.parent / "github_bot.json"
 
 
 def load_config(path=CONFIG_PATH):
@@ -58,14 +58,6 @@ def get_token():
     config = load_config()
     jwt_token = generate_jwt(config["app_id"], config["private_key_path"])
     return get_installation_token(jwt_token, config["installation_id"])
-
-
-def get_token_and_config():
-    """token과 config를 함께 반환"""
-    config = load_config()
-    jwt_token = generate_jwt(config["app_id"], config["private_key_path"])
-    token = get_installation_token(jwt_token, config["installation_id"])
-    return token, config
 
 
 def make_headers(token):
