@@ -8,14 +8,16 @@ claude-setup 배포 스크립트
     - CLAUDE.md             (Claude Code 자동 로드 진입점)
     - .claude/rules/rules.md (작업 규칙 + 봇 사용 지침)
     - github/               (GitHub Bot 모듈)
+    - github_bot.json       (루트 설정 기반, repo 필드만 대상으로 교체)
     - github_bot.json.example
 """
 import argparse
-import shutil
+import json
 import sys
 from pathlib import Path
 
 TEMPLATE_DIR = Path(__file__).parent / "template"
+BOT_CONFIG_PATH = Path(__file__).parent / "github_bot.json"
 
 
 def validate_target(target: Path):
@@ -43,6 +45,18 @@ def copy_template(target: Path):
         print(f"  복사: {rel}")
 
 
+def copy_bot_config(target: Path):
+    dst = target / "github_bot.json"
+    if not BOT_CONFIG_PATH.exists():
+        print("  건너뜀: 루트 github_bot.json 없음")
+        return
+
+    config = json.loads(BOT_CONFIG_PATH.read_text(encoding="utf-8"))
+    config["repo"] = target.name
+    dst.write_text(json.dumps(config, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"  복사: github_bot.json (repo → {target.name})")
+
+
 def warn_if_gitignore_missing(target: Path):
     gitignore = target / ".gitignore"
     entry = "github_bot.json"
@@ -60,9 +74,8 @@ def print_next_steps(target: Path):
     print("배포 완료!")
     print("========================================")
     print("\n다음 단계:")
-    print(f"  1. {target}/github_bot.json.example 을 복사해 github_bot.json 생성")
-    print("  2. github_bot.json에 GitHub App 자격증명 입력")
-    print("  3. .gitignore에 github_bot.json 추가")
+    print(f"  1. github_bot.json의 owner/repo 필드가 올바른지 확인")
+    print("  2. .gitignore에 github_bot.json 추가")
     print("\nClaude Code 실행 시 .claude/rules/rules.md가 자동으로 로드됩니다.")
 
 
@@ -78,6 +91,7 @@ def main():
 
     print("\n파일 복사 중...")
     copy_template(target)
+    copy_bot_config(target)
 
     warn_if_gitignore_missing(target)
     print_next_steps(target)
