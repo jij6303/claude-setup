@@ -12,7 +12,7 @@ import argparse
 
 import requests
 
-from auth import get_token_and_config, make_headers
+from auth import get_owner_repo, get_token, make_headers
 
 
 def create_issue(token, owner, repo, title, body=""):
@@ -31,5 +31,6 @@ if __name__ == "__main__":
     parser.add_argument("--body", default="", help="이슈 본문")
     args = parser.parse_args()
 
-    token, config = get_token_and_config()
-    create_issue(token, config["owner"], config["repo"], args.title, args.body)
+    owner, repo = get_owner_repo()
+    token = get_token()
+    create_issue(token, owner, repo, args.title, args.body)

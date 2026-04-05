@@ -13,7 +13,7 @@ import argparse
 
 import requests
 
-from auth import get_token_and_config, make_headers
+from auth import get_owner_repo, get_token, make_headers
 
 
 def request_review(token, owner, repo, pr_number, reviewers):
@@ -29,5 +29,6 @@ if __name__ == "__main__":
     parser.add_argument("--reviewers", required=True, nargs="+", help="리뷰어 GitHub 유저명 (공백으로 구분)")
     args = parser.parse_args()
 
-    token, config = get_token_and_config()
-    request_review(token, config["owner"], config["repo"], args.pr, args.reviewers)
+    owner, repo = get_owner_repo()
+    token = get_token()
+    request_review(token, owner, repo, args.pr, args.reviewers)

@@ -2,8 +2,8 @@
 브랜치 생성 스크립트
 
 단독 실행:
-    python create_branch.py --branch feature/my-feature
-    python create_branch.py --branch feature/my-feature --base develop
+    python create_branch.py --branch feature-#N
+    python create_branch.py --branch feature-#N --base develop
 
 모듈 사용:
     from github.create_branch import create_branch
@@ -13,7 +13,7 @@ import argparse
 
 import requests
 
-from auth import get_token_and_config, make_headers
+from auth import get_owner_repo, get_token, make_headers
 
 
 def create_branch(token, owner, repo, branch_name, base_branch="main"):
@@ -39,5 +39,6 @@ if __name__ == "__main__":
     parser.add_argument("--base", default="main", help="기준 브랜치 (기본값: main)")
     args = parser.parse_args()
 
-    token, config = get_token_and_config()
-    create_branch(token, config["owner"], config["repo"], args.branch, args.base)
+    owner, repo = get_owner_repo()
+    token = get_token()
+    create_branch(token, owner, repo, args.branch, args.base)
