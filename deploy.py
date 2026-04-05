@@ -42,24 +42,25 @@ def copy_template(target: Path):
         print(f"  복사: {rel}")
 
 
-def warn_if_gitignore_missing(target: Path):
+def ensure_gitignore(target: Path):
     gitignore = target / ".gitignore"
-    entry = "github_bot.json"
+    entry = "/github_bot.json"
 
     if not gitignore.exists():
-        print(f"\n주의: .gitignore 파일이 없습니다. {entry}를 직접 추가하세요.")
+        gitignore.write_text(f"{entry}\n", encoding="utf-8")
+        print(f"  생성: .gitignore ({entry})")
         return
 
-    if entry not in gitignore.read_text(encoding="utf-8"):
-        print(f"\n주의: .gitignore에 '{entry}'가 없습니다. 자격증명 커밋을 방지하려면 추가하세요.")
+    content = gitignore.read_text(encoding="utf-8")
+    if "github_bot.json" not in content:
+        gitignore.write_text(content.rstrip() + f"\n{entry}\n", encoding="utf-8")
+        print(f"  수정: .gitignore ({entry} 추가)")
 
 
 def print_next_steps():
     print("\n========================================")
     print("배포 완료!")
     print("========================================")
-    print("\n다음 단계:")
-    print("  1. .gitignore에 github_bot.json 추가")
     print("\nClaude Code 실행 시 .claude/rules/rules.md가 자동으로 로드됩니다.")
 
 
@@ -75,8 +76,8 @@ def main():
 
     print("\n파일 복사 중...")
     copy_template(target)
+    ensure_gitignore(target)
 
-    warn_if_gitignore_missing(target)
     print_next_steps()
 
 
