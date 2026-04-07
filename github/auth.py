@@ -23,7 +23,7 @@ def generate_jwt(app_id, private_key_path):
     with open(private_key_path, "r") as f:
         private_key = f.read()
     now = int(time.time())
-    payload = {"iat": now - 60, "exp": now + 600, "iss": str(app_id)}
+    payload = {"iat": now - 60, "exp": now + 540, "iss": str(app_id)}
     return jwt.encode(payload, private_key, algorithm="RS256")
 
 
