@@ -1,6 +1,6 @@
 # 작업 규칙
 
-## 중요: GitHub 작업은 반드시 github_bot.py를 사용할 것
+## 중요: GitHub 작업은 반드시 `github/` 봇 스크립트를 사용할 것
 
 이 레포에서 이슈 생성, 브랜치 생성, PR 생성, 리뷰 요청 등 **모든 GitHub 작업**은
 `github/` 모듈을 통해 수행해야 한다.
@@ -14,13 +14,12 @@
 {
   "app_id": <GitHub App ID>,
   "installation_id": <Installation ID>,
-  "private_key_path": "<private key .pem 파일 절대 경로>",
-  "owner": "<GitHub 유저명 또는 org>",
-  "repo": "<레포지토리 이름>"
+  "private_key_path": "<private key .pem 파일 절대 경로>"
 }
 ```
 
-> `github_bot.json.example`을 복사해서 `github_bot.json`으로 만들고 값을 채운다.
+> `owner`/`repo`는 `git remote origin` URL에서 자동으로 감지하므로 적지 않는다.
+> 배포 시 `github_bot.json`이 함께 복사되지 않았다면 `github_bot.json.example`을 복사해서 값을 채운다.
 > `github_bot.json`은 `.gitignore`에 추가해 커밋하지 않는다.
 
 ### 봇 사용 방법
@@ -28,6 +27,10 @@
 ```bash
 # 이슈 생성
 python github/create_issue.py --title "제목" --body "내용"
+
+# 이슈/PR 코멘트 (여러 줄은 --body-file 권장)
+python github/comment_issue.py --issue N --body "내용"
+python github/comment_issue.py --issue N --body-file plan.md
 
 # 브랜치 생성
 python github/create_branch.py --branch feature-#N
@@ -37,6 +40,19 @@ python github/create_pr.py --title "feat(#N): description" --head feature-#N --b
 
 # 리뷰 요청
 python github/request_review.py --pr N --reviewers username
+
+# PR 머지 (머지 후 원격 브랜치 삭제)
+python github/merge_pr.py --pr N --delete-branch
+python github/merge_pr.py --pr N --method squash --delete-branch
+
+# PR 닫기 (머지하지 않음, 원격 브랜치 삭제)
+python github/close_pr.py --pr N --comment "닫는 이유" --delete-branch
+
+# 이슈 닫기 (사유: completed | not_planned)
+python github/close_issue.py --issue N --reason not_planned --comment "닫는 이유"
+
+# 원격 브랜치 삭제 (main/master는 보호)
+python github/delete_branch.py --branch feature-#N
 ```
 
 ---
@@ -49,10 +65,25 @@ python github/request_review.py --pr N --reviewers username
 2. 이슈 생성 — `github/create_issue.py` 사용, 제목·본문 **한글**
 3. 브랜치 생성 — `github/create_branch.py` 사용 (`feature-#N`)
 4. 로컬에서 브랜치 체크아웃
-5. 이슈에 개발 계획 코멘트 작성 (한글, GitHub API 직접 또는 봇 활용)
+5. 이슈에 개발 계획 코멘트 작성 — `github/comment_issue.py` 사용, **한글**
 6. 개발
 7. PR 생성 — `github/create_pr.py` 사용
 8. 리뷰 요청 — `github/request_review.py` 사용
+9. **사용자 승인 후** 머지 — `github/merge_pr.py --pr N --delete-branch` 사용
+
+### 중요: 머지는 반드시 사용자 승인 후에만
+
+- PR 생성·리뷰 요청까지 마쳤으면 멈추고, PR 번호를 밝혀 머지 여부를 사용자에게 묻는다.
+- 승인은 **PR마다 개별로** 받는다. 이전 PR의 승인은 다음 PR에 적용되지 않는다.
+- 개발 계획에 머지가 포함돼 있어도 승인 없이 머지하지 않는다.
+
+### 머지하지 않고 정리할 때
+
+테스트용 작업 등 머지하지 않기로 한 경우:
+
+1. `github/close_pr.py --pr N --comment "..." --delete-branch`
+2. `github/close_issue.py --issue N --reason not_planned --comment "..."`
+3. 로컬에서 `main` 체크아웃 후 로컬 브랜치 삭제
 
 ---
 

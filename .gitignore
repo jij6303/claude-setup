@@ -19,6 +19,7 @@ env/
 # GitHub App credentials
 *.pem
 /github_bot.json
+/template/github_bot.json
 
 # Environment variables
 .env

@@ -9,6 +9,8 @@ claude-setup 배포 스크립트
     - .claude/rules/rules.md (작업 규칙 + 봇 사용 지침)
     - github/               (GitHub Bot 모듈)
     - github_bot.json       (App 자격증명, owner/repo는 git remote에서 자동 감지)
+                            template/github_bot.json은 git에 추적되지 않으므로 로컬에 직접 만들어 둔다.
+    - github_bot.json.example (설정 예시)
 """
 import argparse
 import sys
@@ -57,6 +59,12 @@ def ensure_gitignore(target: Path):
         print(f"  수정: .gitignore ({entry} 추가)")
 
 
+def check_bot_config():
+    if not (TEMPLATE_DIR / "github_bot.json").exists():
+        print("\n경고: template/github_bot.json이 없어 자격증명이 배포되지 않았습니다.")
+        print("      대상 레포에서 github_bot.json.example을 github_bot.json으로 복사해 값을 채우세요.")
+
+
 def print_next_steps():
     print("\n========================================")
     print("배포 완료!")
@@ -77,6 +85,7 @@ def main():
     print("\n파일 복사 중...")
     copy_template(target)
     ensure_gitignore(target)
+    check_bot_config()
 
     print_next_steps()
 
