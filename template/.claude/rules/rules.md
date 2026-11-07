@@ -19,7 +19,7 @@
 ```
 
 > `owner`/`repo`는 `git remote origin` URL에서 자동으로 감지하므로 적지 않는다.
-> 배포 시 `github_bot.json`이 함께 복사되지 않았다면 `github_bot.json.example`을 복사해서 값을 채운다.
+> `claude-setup`의 `deploy.py`로 배포하면 `github_bot.json`이 자동으로 함께 복사된다.
 > `github_bot.json`은 `.gitignore`에 추가해 커밋하지 않는다.
 
 ### 봇 사용 방법
